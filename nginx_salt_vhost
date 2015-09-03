@@ -1,0 +1,13 @@
+server {
+	listen   443;
+
+	ssl    on;
+	ssl_certificate    /etc/nginx/ssl/new.cert.cert;
+	ssl_certificate_key    /etc/nginx/ssl/new.cert.key;
+	server_name 192.168.0.1;
+
+	location / {
+		include uwsgi_params;
+		uwsgi_pass unix:/home/slk/salt-flask/app.sock;
+	}
+}
