@@ -2,6 +2,9 @@
 __pycache__/
 *.py[cod]
 
+# ignore venv directory
+venv/
+
 # C extensions
 *.so
 
