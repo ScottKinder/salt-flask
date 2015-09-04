@@ -4,6 +4,8 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import Required
 from socket import gethostname
 from saw import user_session
+from time import strptime, mktime
+from datetime import datetime
 
 hostname = gethostname()
 app = Flask(__name__)
@@ -16,9 +18,22 @@ class LoginForm(Form):
     password = PasswordField('password', validators=[Required()])
 
 
+def check_auth_token(auth_expiry):
+    # Convert auth_expiry string to a time.struct_time object
+    expiry_time_struct = strptime(auth_expiry, '%a, %d %b %Y %X %Z')
+    # Convert expiry_time_struct to datetime.datetime object
+    expiry_datetime = datetime.fromtimestamp(mktime(expiry_time_struct))
+    # Make sure token hasn't expired, kill auth_token session variable if so
+    if datetime.now() >= expiry_datetime:
+        session.pop('auth_token')
+        return False
+    return True
+
+
 @app.route('/')
 def index():
-    if session.get('auth_token'):
+    if (session.get('auth_token') and
+       check_auth_token(session.get('auth_token'))):
         username = session.get('username')
         auth_token = session.get('auth_token')
     else:
@@ -28,7 +43,8 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if session.get('auth_token'):
+    if (session.get('auth_token') and
+       check_auth_token(session.get('auth_token'))):
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
