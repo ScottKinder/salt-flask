@@ -33,7 +33,7 @@ def check_auth_token(auth_expiry):
 @app.route('/')
 def index():
     if (session.get('auth_token') and
-       check_auth_token(session.get('auth_token'))):
+       check_auth_token(session.get('auth_expiry'))):
         username = session.get('username')
         auth_token = session.get('auth_token')
     else:
@@ -44,7 +44,7 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if (session.get('auth_token') and
-       check_auth_token(session.get('auth_token'))):
+       check_auth_token(session.get('auth_expiry'))):
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
