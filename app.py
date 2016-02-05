@@ -20,6 +20,7 @@ class LoginForm(Form):
 
 def check_auth_token(auth_expiry):
     # Convert auth_expiry string to a time.struct_time object
+    print(auth_expiry)
     expiry_time_struct = strptime(auth_expiry, '%a, %d %b %Y %X %Z')
     # Convert expiry_time_struct to datetime.datetime object
     expiry_datetime = datetime.fromtimestamp(mktime(expiry_time_struct))
@@ -52,6 +53,7 @@ def login():
         user = user_session(user_name=session.get('username'))
         user.set_auth_token(user_pass=form.password.data)
         session['auth_token'] = user.auth_token
+        session['auth_expiry'] = user.auth_expiry
         return redirect(url_for('index'))
     return render_template('login.html', form=form, hostname=hostname)
 
